@@ -10,6 +10,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
 
     List<CategoryEntity> findByProfileId(Long profileId);
     Optional<CategoryEntity> findByIdAndProfileId(Long id, Long profileId);
-    Optional<CategoryEntity> findByTypeAndProfileId(String type, Long profileId);
+    List<CategoryEntity> findByTypeAndProfileId(String type, Long profileId);
     Boolean existsByNameAndProfileId(String name, Long profileId);
 }

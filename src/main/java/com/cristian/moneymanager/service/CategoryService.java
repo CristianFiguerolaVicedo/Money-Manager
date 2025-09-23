@@ -7,9 +7,11 @@ import com.cristian.moneymanager.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,14 @@ public class CategoryService {
         ProfileEntity profile = profileService.getCurrentProfile();
         List<CategoryEntity> categories = categoryRepository.findByProfileId(profile.getId());
         return categories.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<CategoryDto> getCategoriesByTypeForCurrentUser(String type) {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<CategoryEntity> entities = categoryRepository.findByTypeAndProfileId(type, profile.getId());
+        return entities.stream()
                 .map(this::toDto)
                 .toList();
     }

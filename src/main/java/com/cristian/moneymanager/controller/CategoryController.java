@@ -28,4 +28,10 @@ public class CategoryController {
         List<CategoryDto> categories = categoryService.getCategoriesForCurrentUser();
         return ResponseEntity.ok(categories);
     }
+
+    @GetMapping(path = "/{type}")
+    public ResponseEntity<List<CategoryDto>> getCategoriesByTypeForCurrentUser(@PathVariable String type) {
+        List<CategoryDto> list = categoryService.getCategoriesByTypeForCurrentUser(type);
+        return ResponseEntity.ok(list);
+    }
 }
