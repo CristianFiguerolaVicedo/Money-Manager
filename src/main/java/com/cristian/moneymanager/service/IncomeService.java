@@ -9,6 +9,7 @@ import com.cristian.moneymanager.entity.ProfileEntity;
 import com.cristian.moneymanager.repository.CategoryRepository;
 import com.cristian.moneymanager.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -57,6 +58,15 @@ public class IncomeService {
         }
 
         incomeRepository.delete(entity);
+    }
+
+    public List<IncomeDto> filterIncomes(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<IncomeEntity> list = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, keyword, sort);
+
+        return list.stream()
+                .map(this::toDto)
+                .toList();
     }
 
     //////////////////////////////// Dashboard information methods

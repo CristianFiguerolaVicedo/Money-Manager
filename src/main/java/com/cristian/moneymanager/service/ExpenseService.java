@@ -7,6 +7,7 @@ import com.cristian.moneymanager.entity.ProfileEntity;
 import com.cristian.moneymanager.repository.CategoryRepository;
 import com.cristian.moneymanager.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -56,6 +57,15 @@ public class ExpenseService {
         }
 
         expenseRepository.delete(entity);
+    }
+
+    public List<ExpenseDto> filterExpenses(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<ExpenseEntity> list = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, keyword, sort);
+
+        return list.stream()
+                .map(this::toDto)
+                .toList();
     }
 
     //////////////////////////////// Dashboard information methods
