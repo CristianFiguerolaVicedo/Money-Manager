@@ -2,6 +2,7 @@ package com.cristian.moneymanager.service;
 
 import com.cristian.moneymanager.dto.IncomeDto;
 import com.cristian.moneymanager.entity.CategoryEntity;
+import com.cristian.moneymanager.entity.ExpenseEntity;
 import com.cristian.moneymanager.entity.IncomeEntity;
 import com.cristian.moneymanager.entity.ProfileEntity;
 import com.cristian.moneymanager.repository.CategoryRepository;
@@ -42,6 +43,18 @@ public class IncomeService {
         return list.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public void deleteIncome(Long id) {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        IncomeEntity entity = incomeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Income not found"));
+
+        if (!entity.getProfile().getId().equals(profile.getId())) {
+            throw new RuntimeException("Unauthorized to delete this income");
+        }
+
+        incomeRepository.delete(entity);
     }
 
     private IncomeEntity toEntity(IncomeDto dto, ProfileEntity profile, CategoryEntity category) {
