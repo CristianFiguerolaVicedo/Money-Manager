@@ -1,5 +1,6 @@
 package com.cristian.moneymanager.service;
 
+import com.cristian.moneymanager.dto.ExpenseDto;
 import com.cristian.moneymanager.dto.IncomeDto;
 import com.cristian.moneymanager.entity.CategoryEntity;
 import com.cristian.moneymanager.entity.ExpenseEntity;
@@ -10,6 +11,7 @@ import com.cristian.moneymanager.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -56,6 +58,26 @@ public class IncomeService {
 
         incomeRepository.delete(entity);
     }
+
+    //////////////////////////////// Dashboard information methods
+
+    public List<IncomeDto> getLatest5IncomesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<IncomeEntity> latest5Incomes = incomeRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+
+        return latest5Incomes.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public BigDecimal getTotalIncomesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        BigDecimal totalIncomes = incomeRepository.findTotalIncomeByProfileId(profile.getId());
+
+        return totalIncomes != null ? totalIncomes : BigDecimal.ZERO;
+    }
+
+    //////////////////////////////// Helper Methods
 
     private IncomeEntity toEntity(IncomeDto dto, ProfileEntity profile, CategoryEntity category) {
         return IncomeEntity.builder()
