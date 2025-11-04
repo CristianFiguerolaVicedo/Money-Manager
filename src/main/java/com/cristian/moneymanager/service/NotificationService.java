@@ -41,7 +41,7 @@ public class NotificationService {
         log.info("Job completed: sendDailyIncomeExpenseReminder()");
     }
 
-    @Scheduled(cron = "0 * * * * *", zone = "Europe/Madrid") // Send every minute to test
+    //@Scheduled(cron = "0 * * * * *", zone = "Europe/Madrid") // Send every minute to test
     //@Scheduled(cron = "0 0 21 * * *", zone = "Europe/Madrid") //Send every day at 9 PM
     public void sendDailyExpenseSummary() {
         log.info("Job started: sendDailyExpenseSummary()");
@@ -51,7 +51,7 @@ public class NotificationService {
             if (!expenses.isEmpty()) {
                 StringBuilder table = new StringBuilder();
                 table.append("<table style='border-collapse:collapse;width:100%;'>");
-                table.append("<tr style='background-color:#f2f2f2;'><th style='border:1px solid #ddd;padding:8px;'>S.No</th><th style='border:1px solid #ddd;padding:8px;'>Name</th><th style='border:1px solid #ddd;padding:8px;'>Amount</th><th style='border:1px solid #ddd;padding:8px;'>Category</th><th style='border:1px solid #ddd;padding:8px;'>Date</th></tr>");
+                table.append("<tr style='background-color:#f2f2f2;'><th style='border:1px solid #ddd;padding:8px;'>S.No</th><th style='border:1px solid #ddd;padding:8px;'>Name</th><th style='border:1px solid #ddd;padding:8px;'>Amount</th><th style='border:1px solid #ddd;padding:8px;'>Category</th></tr>");
                 int i = 1;
                 for (ExpenseDto expenseDto : expenses) {
                     table.append("<tr>");
@@ -59,7 +59,6 @@ public class NotificationService {
                     table.append("<td style='border:1px solid #ddd;padding:8px;'>").append(expenseDto.getName()).append("</td>");
                     table.append("<td style='border:1px solid #ddd;padding:8px;'>").append(expenseDto.getAmount()).append("</td>");
                     table.append("<td style='border:1px solid #ddd;padding:8px;'>").append(expenseDto.getCategoryId() != null ? expenseDto.getCategoryName() : "N/A").append("</td>");
-                    table.append("<td style='border:1px solid #ddd;padding:8px;'>").append(expenseDto.getDate()).append("</td>");
                     table.append("</tr>");
                 }
                 table.append("</table>");
