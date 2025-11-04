@@ -2,7 +2,7 @@
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 COPY . .
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package
 
 # Etapa 2: runtime
 FROM eclipse-temurin:21-jre
