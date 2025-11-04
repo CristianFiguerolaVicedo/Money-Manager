@@ -13,7 +13,7 @@ public class EmailService {
     @Value("${BREVO_API_KEY}")
     private String apiKey;
 
-    @Value("${BREVO_SENDER_EMAIL:no-reply@moneymanager.com}")
+    @Value("${BREVO_SENDER_EMAIL:crifigshe@gmail.com}")
     private String senderEmail;
 
     public void sendEmail(String toAddress, String subject, String body) {
