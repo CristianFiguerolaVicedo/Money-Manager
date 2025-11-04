@@ -37,6 +37,9 @@ public class EmailService {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
             System.out.println("✅ Email enviado a " + toAddress + " (status " + response.getStatusCode() + ")");
+            System.out.println("✅ Código: " + response.getStatusCode());
+            System.out.println("📩 Respuesta: " + response.getBody());
+
         } catch (Exception e) {
             System.err.println("❌ Error enviando correo: " + e.getMessage());
             throw new RuntimeException("Error al enviar correo: " + e.getMessage());
