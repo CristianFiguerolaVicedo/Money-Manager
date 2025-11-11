@@ -1,48 +1,45 @@
 package com.cristian.moneymanager.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
-    @Value("${BREVO_API_KEY}")
-    private String apiKey;
+    private final JavaMailSender mailSender;
 
-    @Value("${BREVO_SENDER_EMAIL:crifigshe@gmail.com}")
-    private String senderEmail;
+    @Value("${spring.mail.properties.mail.smtp.from}")
+    private String fromEmail;
 
-    public void sendEmail(String toAddress, String subject, String body) {
-        String url = "https://api.brevo.com/v3/smtp/email";
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        Map<String, Object> payload = Map.of(
-                "sender", Map.of("email", senderEmail, "name", "Money Manager"),
-                "to", new Map[]{ Map.of("email", toAddress) },
-                "subject", subject,
-                "htmlContent", "<p>" + body + "</p>"
-        );
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("api-key", apiKey);
-
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-
+    public void sendEmail(String to, String subject, String body) {
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-            System.out.println("✅ Email enviado a " + toAddress + " (status " + response.getStatusCode() + ")");
-            System.out.println("✅ Código: " + response.getStatusCode());
-            System.out.println("📩 Respuesta: " + response.getBody());
-
-        } catch (Exception e) {
-            System.err.println("❌ Error enviando correo: " + e.getMessage());
-            throw new RuntimeException("Error al enviar correo: " + e.getMessage());
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
+            mailSender.send(message);
+        }catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public void sendEmailWithAttachment(String to, String subject, String body, byte[] attachment, String filename) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setFrom(fromEmail);
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(body);
+        helper.addAttachment(filename, new ByteArrayResource(attachment));
+        mailSender.send(message);
     }
 }
