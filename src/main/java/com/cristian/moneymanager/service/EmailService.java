@@ -1,5 +1,6 @@
 package com.cristian.moneymanager.service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.properties.mail.smtp.from}")
+    @Value("${app.mail.from}")
     private String fromEmail;
 
     public void sendEmail(String to, String subject, String body) {
