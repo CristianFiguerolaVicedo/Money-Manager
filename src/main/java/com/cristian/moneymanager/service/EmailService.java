@@ -1,45 +1,70 @@
 package com.cristian.moneymanager.service;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    private final RestTemplate restTemplate;
 
-    @Value("${spring.mail.properties.mail.smtp.from}")
-    private String fromEmail;
+    @Value("${BREVO_API_KEY}")
+    private String apiKey;
+
+    @Value("${BREVO_SENDER_EMAIL}")
+    private String senderEmail;
 
     public void sendEmail(String to, String subject, String body) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
-            mailSender.send(message);
-        }catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        String url = "https://api.brevo.com/v3/smtp/email";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", apiKey);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("sender", Map.of("email", senderEmail));
+        payload.put("to", List.of(Map.of("email", to)));
+        payload.put("subject", subject);
+        payload.put("textContent", body);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+        restTemplate.postForEntity(url, request, String.class);
     }
 
-    public void sendEmailWithAttachment(String to, String subject, String body, byte[] attachment, String filename) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setFrom(fromEmail);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(body);
-        helper.addAttachment(filename, new ByteArrayResource(attachment));
-        mailSender.send(message);
+    public void sendEmailWithAttachment(String to, String subject, String body, byte[] attachment, String filename) {
+        String url = "https://api.brevo.com/v3/smtp/email";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", apiKey);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("sender", Map.of("email", senderEmail));
+        payload.put("to", List.of(Map.of("email", to)));
+        payload.put("subject", subject);
+        payload.put("textContent", body);
+
+        // Encode attachment as Base64
+        String base64Attachment = Base64.getEncoder().encodeToString(attachment);
+        Map<String, String> formattedAttachment = Map.of(
+                "name", filename,
+                "content", base64Attachment
+        );
+
+        payload.put("attachment", List.of(formattedAttachment));
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+        restTemplate.postForEntity(url, request, String.class);
     }
 }
